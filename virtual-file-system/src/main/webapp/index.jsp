@@ -92,12 +92,20 @@ body {
 				data : command,
 				dataType : 'text',
 				success : function(data, textStatus, xhr) {
-					const response = JSON.parse(data)
-					result.append('<p class="success-message">' + response.message + '</p>');
+					const response = JSON.parse(data).message;
+					// Handle response multiple line
+					if(response.includes('\n')) {
+						const messages = response.split('\n');
+						messages.forEach(mess => {
+							result.append('<p class="success-message">' + mess + '</p>');
+						})
+					} else {
+						result.append('<p class="success-message">' + response + '</p>');
+					}
 				},
 			    error: function(xhr, status, error){
-					const response = JSON.parse(xhr.responseText);
-					result.append('<p class="error-message">' + response.message + '</p>');
+					const response = JSON.parse(xhr.responseText).message;
+					result.append('<p class="error-message">' + response + '</p>');
 			    },
 				complete : function(response) {
 					$("#command").val("");
