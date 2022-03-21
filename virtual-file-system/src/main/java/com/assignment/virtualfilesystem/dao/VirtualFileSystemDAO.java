@@ -16,7 +16,7 @@ public interface VirtualFileSystemDAO {
 	
 	public void decreaseComponentSize(int theId, long size);
 
-	public void createComponent(Component theComponent);
+	public boolean createComponent(Component theComponent);
 	
 	public Component getComponent(int theId);
 	

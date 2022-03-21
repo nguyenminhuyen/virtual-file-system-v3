@@ -15,6 +15,11 @@ public class File extends Component {
 		
 	}
 
+	public File(String data) {
+		super();
+		this.data = data;
+	}
+
 	public String getData() {
 		return data;
 	}

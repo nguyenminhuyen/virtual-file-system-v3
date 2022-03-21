@@ -1,4 +1,4 @@
-package com.assignment.virtualfilesystem.rest;
+package com.assignment.virtualfilesystem.exception;
 
 public class VFSNotFoundException extends RuntimeException {
 

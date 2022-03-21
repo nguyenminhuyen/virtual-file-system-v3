@@ -19,7 +19,7 @@ public class Folder extends Component {
 	public Folder() {
 		
 	}
-
+	
 	/*
 	public List<Component> getSubordinates() {
 		return subordinates;

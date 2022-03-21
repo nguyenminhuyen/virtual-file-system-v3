@@ -10,6 +10,11 @@ import com.assignment.virtualfilesystem.dao.VirtualFileSystemDAO;
 import com.assignment.virtualfilesystem.entity.Component;
 import com.assignment.virtualfilesystem.entity.File;
 import com.assignment.virtualfilesystem.entity.Folder;
+import com.assignment.virtualfilesystem.exception.VFSDatabaseException;
+import com.assignment.virtualfilesystem.exception.VFSExistedNameException;
+import com.assignment.virtualfilesystem.exception.VFSMismatchTypeException;
+import com.assignment.virtualfilesystem.exception.VFSNotFoundException;
+import com.assignment.virtualfilesystem.exception.VFSParentNotFoundException;
 
 @Service
 public class VirtualFileSystemServiceImpl implements VirtualFileSystemService {
@@ -49,27 +54,31 @@ public class VirtualFileSystemServiceImpl implements VirtualFileSystemService {
 
 	@Override
 	@Transactional
-	public Component createComponent(String thePath, String theData) {
+	public boolean createComponent(String thePath, String theData, boolean pFlag) {
 		
 		if (checkUniqueName(thePath) == false) {
-			return null;
+			throw new VFSExistedNameException("The file/folder has already existed");
 		}
 		
-		String[] partOfPath = thePath.split("-");
+		String[] partOfPath = thePath.split("/");
 		String theName = partOfPath[partOfPath.length - 1];
 		
 		String theParentPath = "";
 		for (int i = 0; i < partOfPath.length - 1; i++) {
 			theParentPath += partOfPath[i];
 			if (i < partOfPath.length - 2)
-				theParentPath += "-";
+				theParentPath += "/";
 		}
 		System.out.println("The parent path: " + theParentPath);
 		
 		Component theParent = vfsDAO.getComponentFromPath(theParentPath);
 		
 		if (theParent == null) {
-			return null;
+			throw new VFSParentNotFoundException("The parent folder not found");
+		}
+		
+		if (theParent.getClass().getSimpleName().equals("File")) {
+			throw new VFSMismatchTypeException("Can not create new item in a file");
 		}
 		
 		if (theData != null) {
@@ -85,9 +94,12 @@ public class VirtualFileSystemServiceImpl implements VirtualFileSystemService {
 
 			increaseAncestorSize(theComponent, dataSize);
 			
-			vfsDAO.createComponent(theComponent);
-			
-			return theComponent;
+			if (!vfsDAO.createComponent(theComponent)) {
+				throw new VFSDatabaseException("Can not create file at path: " + thePath);
+			}
+			else {
+				return true;
+			}
 		}
 		else {
 			Folder theComponent = new Folder();
@@ -96,9 +108,13 @@ public class VirtualFileSystemServiceImpl implements VirtualFileSystemService {
 			theComponent.setName(theName);
 			theComponent.setParent(theParent);
 			theComponent.setSize(0);
-			vfsDAO.createComponent(theComponent);
 			
-			return theComponent;
+			if (!vfsDAO.createComponent(theComponent)) {
+				throw new VFSDatabaseException("Can not create folder at path: " + thePath);
+			}
+			else {
+				return true;
+			}
 		}
 
 	}
@@ -110,14 +126,14 @@ public class VirtualFileSystemServiceImpl implements VirtualFileSystemService {
 		Component theComponent = vfsDAO.getComponentFromPath(thePath);
 		
 		if (theComponent == null) {
-			return null;
+			throw new VFSNotFoundException("No file at path " + thePath);
 		}
 		
-		if (theComponent.getClass().getSimpleName().equals("File")) {
-			return ((File) theComponent).getData();
+		if (theComponent.getClass().getSimpleName().equals("Folder")) {
+			throw new VFSMismatchTypeException("No file at path " + thePath);
 		}
 		
-		return null;
+		return ((File) theComponent).getData();
 	}
 
 	@Override
@@ -125,6 +141,10 @@ public class VirtualFileSystemServiceImpl implements VirtualFileSystemService {
 	public List<Component> getDescendants(String thePath) {
 		
 		Component theComponent = vfsDAO.getComponentFromPath(thePath);
+		
+		if (theComponent == null) {
+			throw new VFSNotFoundException("No file/folder at path " + thePath);
+		}
 		
 		return vfsDAO.getDescendants(theComponent.getId());
 	}
@@ -135,12 +155,20 @@ public class VirtualFileSystemServiceImpl implements VirtualFileSystemService {
 		Component theComponent = vfsDAO.getComponentFromPath(thePath);
 		Component destComponent = vfsDAO.getComponentFromPath(destPath);
 		
-		if (destComponent == null || theComponent == null || destComponent.getClass().getSimpleName().equals("File")) {
-			return false;
+		if (theComponent == null) {
+			throw new VFSNotFoundException("No file/folder at path " + thePath);
+		}
+		
+		if (destComponent == null) {
+			throw new VFSNotFoundException("No file/folder at path " + destPath);
+		}
+		
+		if (destComponent.getClass().getSimpleName().equals("File")) {
+			throw new VFSMismatchTypeException("Can move an item to a file");
 		}
 		
 		if (destPath.contains(thePath)) {
-			return false;
+			throw new VFSMismatchTypeException("Can not move a folder to become a subfolder of itself");
 		}
 		
 		long compSize = theComponent.getSize();
@@ -161,6 +189,10 @@ public class VirtualFileSystemServiceImpl implements VirtualFileSystemService {
 		
 		Component theComponent = vfsDAO.getComponentFromPath(thePath);
 		
+		if (theComponent == null) {
+			throw new VFSNotFoundException("No file/folder at path " + thePath);
+		}
+		
 		long compSize = theComponent.getSize();
 		
 		decreaseAncestorSize(theComponent, compSize);
@@ -176,7 +208,7 @@ public class VirtualFileSystemServiceImpl implements VirtualFileSystemService {
 		Component theComponent = vfsDAO.getComponentFromPath(thePath);
 		
 		if (theComponent == null) {
-			return false;
+			throw new VFSNotFoundException("No file/folder at path " + thePath);
 		}
 		
 		if (theComponent.getClass().getSimpleName().equals("Folder")) {

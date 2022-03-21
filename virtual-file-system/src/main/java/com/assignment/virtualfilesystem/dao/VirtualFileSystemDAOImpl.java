@@ -31,7 +31,7 @@ public class VirtualFileSystemDAOImpl implements VirtualFileSystemDAO {
 					"WHERE id = 1) " +
 					"UNION ALL " +
 					"(SELECT this.id, this.name, this.create_at, this.data, this.parent_id, " +
-					"cast(CONCAT(prior.path, '-', this.name) as char(256)) " +
+					"cast(CONCAT(prior.path, '/', this.name) as char(256)) " +
 					"FROM compdata prior " +
 					"INNER JOIN Component this ON this.parent_id = prior.id) " +
 					") " +
@@ -120,11 +120,13 @@ public class VirtualFileSystemDAOImpl implements VirtualFileSystemDAO {
 	}
 			
 	@Override
-	public void createComponent(Component theComponent) {
+	public boolean createComponent(Component theComponent) {
 		
 		Session currentSession = sessionFactory.getCurrentSession();
 		
-		currentSession.save(theComponent);
+		Object res = currentSession.save(theComponent);
+		
+		return res == null ? false : true;
 
 	}
 	
@@ -153,9 +155,11 @@ public class VirtualFileSystemDAOImpl implements VirtualFileSystemDAO {
 
 		Session currentSession = sessionFactory.getCurrentSession();
 		
-		String sqlQuery = "select * from Component where parent_id=:componentId or id=:componentId";
+		String sqlQuery = "select * "
+						+ "from Component "
+						+ "where parent_id=:componentId or id=:componentId";
 		
-		Query theQuery = currentSession.createSQLQuery(sqlQuery);
+		Query theQuery = currentSession.createNativeQuery(sqlQuery, Component.class);
 		theQuery.setParameter("componentId", theId);
 		
 		List<Component> directChilds = new ArrayList<>();

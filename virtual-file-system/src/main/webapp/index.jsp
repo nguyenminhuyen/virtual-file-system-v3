@@ -5,16 +5,44 @@
 <title>Virtual File System</title>
 
 <style>
-
+body {
+	font-family: "Courier New", Courier, monospace
+}
 .main {
+	margin: 50px auto;
 	width: 600px;
+}
+
+.title {
+	text-align: center;
 }
 
 .result-console {
 	height: 300px;
 	overflow-y: auto;
 	padding: 5px;
-	background: #eee;
+	background: #000;
+	color: #fff;
+	font-size: 14px;
+}
+
+.form-input {
+	width: 100%;
+	height: 30px;
+	border: solid 1px #dedede;
+	border-radius: 3px;
+}
+
+.result-console p {
+	margin: 10px 0;
+}
+
+.success-message {
+	color: #0ebf0e;
+}
+
+.error-message {
+	color: red;
 }
 </style>
 
@@ -24,41 +52,38 @@
 </head>
 <body>
 
-<div class="main">
-
-	<h1>Virtual File System</h1>
-	
-	<hr>
+<main class="main">
+	<h1 class="title">Virtual File System</h1>
 	
 	<form id="form">
 		<div class="command-console">
-			<input class="form-input" type="text" id="command" />
+			<input class="form-input" type="text" id="command" autofocus autocomplete="off"/>
 			<div class="submit-button">
-				<button type="submit" id="sub-btn" >
-					Submit
-				</button>
 			</div>
 			
 		</div>
-	
 	</form>
 	
-	
-	<div class="result-console" id="result"></div>
-
-</div>
+	<section class="result-console" id="result"></section>
+</main>
 
 
 <script>
+	
 	$("#form").on('submit', function(event) {
 		event.preventDefault();
-
+	
 		var command = $("#command").val();
 		
 		if (command.length > 0) {
 			var result = $("#result");
-			result.append(command + "<br>");
-			$("#sub-btn").prop("disabled", true);
+			if(command === 'clear') {
+				result.empty();
+				$("#command").val("");
+				return;
+			}
+			
+			result.append("<p>> " + command + "</p>");
 			
 			$.ajax({
 				type : "POST",
@@ -67,19 +92,21 @@
 				data : command,
 				dataType : 'text',
 				success : function(data, textStatus, xhr) {
-					result.append(data.message + "<br>");
+					const response = JSON.parse(data)
+					result.append('<p class="success-message">' + response.message + '</p>');
 				},
+			    error: function(xhr, status, error){
+					const response = JSON.parse(xhr.responseText);
+					result.append('<p class="error-message">' + response.message + '</p>');
+			    },
 				complete : function(response) {
-					$("#sub-btn").prop("disabled", false);
 					$("#command").val("");
-					result.append(response.responseText + "<br>");
-
+	
 					result.animate({
 						scrollTop : result.prop("scrollHeight")
 					}, 0);
 				}
 			});
-			
 		}		
 	})
 </script>

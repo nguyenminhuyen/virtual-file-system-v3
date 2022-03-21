@@ -1,5 +1,7 @@
 package com.assignment.virtualfilesystem.entity;
 
+import com.assignment.virtualfilesystem.validate.EValidCommand;
+
 public class Command {
 
 	private String code;

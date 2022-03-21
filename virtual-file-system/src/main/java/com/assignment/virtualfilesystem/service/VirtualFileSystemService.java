@@ -6,7 +6,7 @@ import com.assignment.virtualfilesystem.entity.Component;
 
 public interface VirtualFileSystemService {
 
-	public Component createComponent(String thePath, String theData);
+	public boolean createComponent(String thePath, String theData, boolean pFlag) throws Exception;
 	
 	public String getData(String thePath);
 	

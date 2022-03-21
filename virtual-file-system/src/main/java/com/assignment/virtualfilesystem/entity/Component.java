@@ -48,6 +48,14 @@ public class Component {
 		
 	}
 	
+	public Component(int id, String name, long createAt, long size, Component parent) {
+		this.id = id;
+		this.name = name;
+		this.createAt = createAt;
+		this.size = size;
+		this.parent = parent;
+	}
+
 	public long getSize() {
 		return size;
 	}
