@@ -1,5 +1,6 @@
 package com.assignment.virtualfilesystem.rest;
 
+import java.util.Calendar;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.assignment.virtualfilesystem.entity.Command;
 import com.assignment.virtualfilesystem.entity.Component;
 import com.assignment.virtualfilesystem.service.VirtualFileSystemService;
+import com.assignment.virtualfilesystem.validate.EValidCommand;
+import com.assignment.virtualfilesystem.validate.VirtualFileSystemValidator;
 
 @RestController
 @RequestMapping("/api")
@@ -21,34 +24,23 @@ public class VirtualFileSystemController {
 	@Autowired
 	private VirtualFileSystemService vfsService;
 	
+	@Autowired
+	private VirtualFileSystemValidator vfsValidator;
+	
 	@PostMapping("/vfs")
 	public ResponseEntity<VFSResponseMessage> execute(@RequestBody String strCommand) {
 		
-		String[] parts = strCommand.split(" ");
-		
-		String cmdCode = parts[0];
 		Command command = new Command();
+		command = vfsValidator.commandValidate(strCommand);
+		
+		EValidCommand cmdCode = command.getCode();
+		
 		String res = "";
 		
 		VFSResponseMessage response = new VFSResponseMessage();
 		
 		switch (cmdCode) {
-		case "cr":
-			command.setCode(parts[0]);
-			if (parts[1].equals("-p")) {
-				command.setpFlag(true);
-				command.setPaths(new String[] {parts[2]});
-				if (parts.length > 3) {
-					command.setData(parts[3]);
-				}
-			}
-			else {
-				command.setpFlag(false);
-				command.setPaths(new String[] {parts[1]});
-				if (parts.length > 2) {
-					command.setData(parts[2]);
-				}
-			}
+		case cr:
 			
 			res = "Create " + command.getPaths()[0]; 
 			
@@ -61,11 +53,8 @@ public class VirtualFileSystemController {
 			
 			break;
 		
-		case "cat":
+		case cat:
 
-			command.setCode(parts[0]);
-			command.setPaths(new String[] {parts[1]});
-			
 			String theData = vfsService.getData(command.getPaths()[0]);
 			
 			if (theData == null) {
@@ -75,33 +64,38 @@ public class VirtualFileSystemController {
 			
 			break;
 			
-		case "ls":
+		case ls:
 			
-			//command.setCode(parts[0]);
-			//command.setPaths(new String[] {parts[1]});
+			List<Component> theChilds = vfsService.getDescendants(command.getPaths()[0]);
 			
-			//String path = command.getPaths()[0];
-			String path = parts[1];
-			List<Component> theChilds = vfsService.getDescendants(path);
-			
-			//res = String.valueOf(theChilds.size());
-			
-			for (int i=0;i<theChilds.size();i++) {
-				res += ("Name: " + theChilds.get(i).getName() 
-						+ ". Created at: " + String.valueOf(theChilds.get(i).getCreateAt())
-						+ ". Size: " + String.valueOf(theChilds.get(i).getSize()) + "\n");
+			for (Component c : theChilds) {
+				Calendar calendar = Calendar.getInstance();
+				calendar.setTimeInMillis(c.getCreateAt());
+				int mYear = calendar.get(Calendar.YEAR);
+				int mMonth = calendar.get(Calendar.MONTH) + 1;
+				int mDay = calendar.get(Calendar.DAY_OF_MONTH);
+				int mHour = calendar.get(Calendar.HOUR);
+				int mMin = calendar.get(Calendar.MINUTE);
+				int mSecond = calendar.get(Calendar.SECOND);
+				res += ("Name: " + c.getName() 
+						+ ". Created at: " 
+						+ String.valueOf(mHour) 
+						+ ":" + String.valueOf(mMin) 
+						+ ":" + String.valueOf(mSecond) 
+						+ " " + String.valueOf(mDay) 
+						+ "/" + String.valueOf(mMonth) 
+						+ "/" + String.valueOf(mYear)
+						+ ". Size: " + String.valueOf(c.getSize()) + "\n");
 			}
-			
-			System.out.println(res);
 			
 			break;
 			
-		case "mv":
+		case mv:
 			
-			boolean result = vfsService.moveComponent(parts[1], parts[2]);
+			boolean result = vfsService.moveComponent(command.getPaths()[0], command.getFolderPath());
 			
 			if (result) {
-				res = "Move " + parts[1] + " to path " + parts[2] + " successfully!";
+				res = "Move " + command.getPaths()[0] + " to path " + command.getFolderPath() + " successfully!";
 			}
 			else {
 				res = "Invalid path or folder path";
@@ -109,34 +103,15 @@ public class VirtualFileSystemController {
 			
 			break;
 		
-		case "rm":
+		case rm:
 			
-			for (int i=1;i<parts.length;i++) {
-				vfsService.deleteComponent(parts[i]);
+			for (String path : command.getPaths()) {
+				vfsService.deleteComponent(path);
 			}
 			
 			res = "Deleted component(s) successfully!";
 			
 			break;
-			
-		case "up":
-			command.setPaths(new String[] {parts[1]});
-			command.setName(parts[2]);
-			if (parts.length > 3) {
-				command.setData(parts[3]);
-			}
-			else {
-				command.setData(null);
-			}
-			
-			result = vfsService.updateComponent(command.getPaths()[0], command.getName(), command.getData());
-			
-			if (result) {
-				res = "Update " + command.getPaths()[0] + " successfully!";
-			}
-			else {
-				res = "Invalid path";
-			}
 		}
 		
 		response.setMessage(res);

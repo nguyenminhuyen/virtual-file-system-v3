@@ -12,15 +12,20 @@ import com.assignment.virtualfilesystem.entity.File;
 import com.assignment.virtualfilesystem.entity.Folder;
 import com.assignment.virtualfilesystem.exception.VFSDatabaseException;
 import com.assignment.virtualfilesystem.exception.VFSExistedNameException;
+import com.assignment.virtualfilesystem.exception.VFSInvalidNameException;
 import com.assignment.virtualfilesystem.exception.VFSMismatchTypeException;
 import com.assignment.virtualfilesystem.exception.VFSNotFoundException;
 import com.assignment.virtualfilesystem.exception.VFSParentNotFoundException;
+import com.assignment.virtualfilesystem.validate.VirtualFileSystemValidator;
 
 @Service
 public class VirtualFileSystemServiceImpl implements VirtualFileSystemService {
 	
 	@Autowired
 	private VirtualFileSystemDAO vfsDAO;
+	
+	@Autowired
+	private VirtualFileSystemValidator vfsValidator;
 	
 	public void increaseAncestorSize(Component component, long size) {
 		
@@ -62,6 +67,10 @@ public class VirtualFileSystemServiceImpl implements VirtualFileSystemService {
 		
 		String[] partOfPath = thePath.split("/");
 		String theName = partOfPath[partOfPath.length - 1];
+		
+		if (!vfsValidator.nameValidate(theName)) {
+			throw new VFSInvalidNameException("Invalid name!");
+		}
 		
 		String theParentPath = "";
 		for (int i = 0; i < partOfPath.length - 1; i++) {

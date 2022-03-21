@@ -4,7 +4,7 @@ import com.assignment.virtualfilesystem.validate.EValidCommand;
 
 public class Command {
 
-	private String code;
+	private EValidCommand code;
 	private boolean pFlag;
 	private String[] paths;
 	private String folderPath;
@@ -15,6 +15,15 @@ public class Command {
 		
 	}
 
+	public Command(EValidCommand code, boolean pFlag, String[] paths, String folderPath, String name, String data) {
+		this.code = code;
+		this.pFlag = pFlag;
+		this.paths = paths;
+		this.folderPath = folderPath;
+		this.name = name;
+		this.data = data;
+	}
+
 	public String getFolderPath() {
 		return folderPath;
 	}
@@ -23,11 +32,11 @@ public class Command {
 		this.folderPath = folderPath;
 	}
 
-	public String getCode() {
+	public EValidCommand getCode() {
 		return code;
 	}
 
-	public void setCode(String code) {
+	public void setCode(EValidCommand code) {
 		this.code = code;
 	}
 

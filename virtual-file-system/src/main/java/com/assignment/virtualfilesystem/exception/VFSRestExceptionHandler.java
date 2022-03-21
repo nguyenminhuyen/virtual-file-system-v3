@@ -24,40 +24,50 @@ public class VFSRestExceptionHandler {
 	public ResponseEntity<VFSErrorResponse> handleException (VFSExistedNameException exc){
 		
 		VFSErrorResponse error = new VFSErrorResponse(
-											HttpStatus.BAD_REQUEST.value(),
+											HttpStatus.NOT_FOUND.value(),
 											exc.getMessage(),
 											System.currentTimeMillis());
-		return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
 	}
 	
 	@ExceptionHandler
 	public ResponseEntity<VFSErrorResponse> handleException (VFSParentNotFoundException exc){
 		
 		VFSErrorResponse error = new VFSErrorResponse(
-											HttpStatus.NOT_ACCEPTABLE.value(),
+											HttpStatus.NOT_FOUND.value(),
 											exc.getMessage(),
 											System.currentTimeMillis());
-		return new ResponseEntity<>(error, HttpStatus.NOT_ACCEPTABLE);
+		return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
 	}
 	
 	@ExceptionHandler
 	public ResponseEntity<VFSErrorResponse> handleException (VFSDatabaseException exc){
 		
 		VFSErrorResponse error = new VFSErrorResponse(
-											HttpStatus.SERVICE_UNAVAILABLE.value(),
+											HttpStatus.NOT_FOUND.value(),
 											exc.getMessage(),
 											System.currentTimeMillis());
-		return new ResponseEntity<>(error, HttpStatus.SERVICE_UNAVAILABLE);
+		return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
 	}
 	
 	@ExceptionHandler
 	public ResponseEntity<VFSErrorResponse> handleException (VFSMismatchTypeException exc){
 		
 		VFSErrorResponse error = new VFSErrorResponse(
-											HttpStatus.BAD_REQUEST.value(),
+											HttpStatus.NOT_FOUND.value(),
 											exc.getMessage(),
 											System.currentTimeMillis());
-		return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+	}
+	
+	@ExceptionHandler
+	public ResponseEntity<VFSErrorResponse> handleException (VFSInvalidNameException exc){
+		
+		VFSErrorResponse error = new VFSErrorResponse(
+											HttpStatus.NOT_FOUND.value(),
+											exc.getMessage(),
+											System.currentTimeMillis());
+		return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
 	}
 	
 	@ExceptionHandler
