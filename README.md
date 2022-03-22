@@ -3,7 +3,7 @@
 This project is a web-based application that can support file system management like the UNIX command line. In particular, it supports *create*, *cat*, *list*, *move*, *remove* commands on file and folder in the file system. The file system is stored on a server-side SQL database.
 
 ## Demo
-Update soon!
+https://drive.google.com/file/d/1FjSFm8mpldGUVuXPNcxXzcFAfCR3Z_SJ/view?usp=sharing
 
 ## Technology
 - Java 1.8
