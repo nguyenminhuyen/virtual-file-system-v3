@@ -65,6 +65,47 @@ body {
 	</form>
 	
 	<section class="result-console" id="result"></section>
+	
+	<br><br>
+	
+	<section class="instruction" id="inst">
+		<h3>Command syntax</h3>
+		<dl>
+		  <dt><b>cr PATH [DATA]</b></dt>
+		  <dd>Create a new file (if DATA is specified, otherwise create a new folder) at the specified PATH</dd>
+		  
+		  <dt><b>cat FILE_PATH</b></dt>
+		  <dd>Show the content of a file at FILE_PATH</dd>
+		  
+		  <dt><b>ls FOLDER_PATH</b></dt>
+		  <dd>List out all items directly under a folder</dd>
+		  
+		  <dt><b>mv PATH FOLDER_PATH</b></dt>
+		  <dd>Move a file/folder at PATH into the destination FOLDER_PATH</dd>
+		  
+		  <dt><b>rm PATH [PATH2 PATH3...]</b></dt>
+		  <dd>Remove files/folders at the specified PATH(s)</dd>
+		  
+		  <dt><b>clear</b></dt>
+		  <dd>Clear the console</dd>
+		</dl>
+		
+		<br>
+		
+		<strong>Note that:</strong>
+		<ul>
+			<li>PATH must start with <i>root</i>.</li>
+			<li>If file/folder's name or DATA has a space, put the path or DATA in "".</li>
+		</ul>
+		
+		<br>
+		
+		Example:
+		<ul>
+			<li>cr root/file1 "welcome to virtual system file"</li>
+			<li>mv root/file1 "root/folder 123"</li>
+		</ul>
+	</section>
 </main>
 
 
